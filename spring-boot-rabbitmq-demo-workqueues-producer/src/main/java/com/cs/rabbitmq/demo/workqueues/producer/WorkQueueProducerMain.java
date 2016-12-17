@@ -1,7 +1,11 @@
-package com.cs.rabbitmq;
+package com.cs.rabbitmq.demo.workqueues.producer;
 
+import com.cs.rabbitmq.demo.workqueues.MyMessage;
 import org.apache.log4j.Logger;
-import org.springframework.amqp.core.FanoutExchange;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,33 +15,41 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 @SpringBootApplication
 @EnableScheduling
-public class PublishSubscribeProducerMain implements CommandLineRunner {
+public class WorkQueueProducerMain implements CommandLineRunner {
 
-	private static final Logger logger = Logger.getLogger(PublishSubscribeProducerMain.class);
+	private static final Logger logger = Logger.getLogger(WorkQueueProducerMain.class);
+
+	private final static String queueName = "spring-boot";
 
 	private final AtomicInteger count = new AtomicInteger(0);
 
 	@Autowired
+	private
 	AnnotationConfigApplicationContext context;
 
 	@Autowired
+	private
 	RabbitTemplate rabbitTemplate;
 
 	@Bean
-	FanoutExchange exchange() {
-		return new FanoutExchange(Constants.EXCHANGE_NAME);
+	Queue queue() {
+		return new Queue(queueName, false);
 	}
 
-//  @Bean
-//  Binding binding(final FanoutExchange exchange) {
-//    return BindingBuilder.bind(exchange).to(exchange);
-//  }
+	@Bean
+	TopicExchange exchange() {
+		return new TopicExchange("spring-boot-exchange");
+	}
+
+	@Bean
+	Binding binding(final Queue queue, final TopicExchange exchange) {
+		return BindingBuilder.bind(queue).to(exchange).with(queueName);
+	}
 
 //  @Bean
 //  SimpleMessageListenerContainer container(final ConnectionFactory connectionFactory,
@@ -61,14 +73,13 @@ public class PublishSubscribeProducerMain implements CommandLineRunner {
 //  }
 
 	public static void main(final String[] args) {
-		SpringApplication.run(PublishSubscribeProducerMain.class, args);
+		SpringApplication.run(WorkQueueProducerMain.class, args);
 	}
 
-	@Scheduled(fixedRate = 1000L) // every 5 seconds
-	public void sendMessage() {
-		int i = count.incrementAndGet();
-		logger.info("Sending message " + i + " ...");
-		rabbitTemplate.convertAndSend(Constants.EXCHANGE_NAME, "", new MyMessage("Hello from RabbitMQ! - " + i));
+	//  @Scheduled(fixedRate = 1000L) // every 5 seconds
+	private void sendMessage() {
+		logger.info("Sending message...");
+		rabbitTemplate.convertAndSend(queueName, new MyMessage("Hello from RabbitMQ! - " + count.incrementAndGet()));
 	}
 
 	@Override
@@ -76,8 +87,12 @@ public class PublishSubscribeProducerMain implements CommandLineRunner {
 
 		logger.info("connectionFactory => " + context.getBean(ConnectionFactory.class));
 
-		System.out.println("Press enter to exit ...");
-		System.in.read();
+		for (int i = 0; i < 50; i++) {
+			sendMessage();
+		}
+
+//    System.out.println("Press enter to exit ...");
+//    System.in.read();
 
 		context.close();
 	}

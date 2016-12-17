@@ -1,4 +1,4 @@
-package com.cs.rabbitmq;
+package com.cs.rabbitmq.demo.publishsubscribe;
 
 import java.io.Serializable;
 import java.util.Date;

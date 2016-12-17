@@ -1,9 +1,9 @@
-package com.cs.rabbitmq.client;
+package com.cs.rabbitmq.demo.publishsubscribe.worker;
 
-import com.cs.rabbitmq.MyMessage;
+import com.cs.rabbitmq.demo.publishsubscribe.MyMessage;
 import org.apache.log4j.Logger;
 
-public class Receiver {
+class Receiver {
 
 	private static final Logger logger = Logger.getLogger(Receiver.class);
 

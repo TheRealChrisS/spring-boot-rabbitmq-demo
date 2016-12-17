@@ -1,8 +1,10 @@
-package com.cs.rabbitmq.client;
+package com.cs.rabbitmq.demo.workqueues.worker;
 
-import com.cs.rabbitmq.Constants;
 import org.apache.log4j.Logger;
-import org.springframework.amqp.core.*;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
@@ -14,35 +16,37 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
-public class PublishSubscriberWorkerMain implements CommandLineRunner {
+public class WorkQueueWorkerMain implements CommandLineRunner {
 
-	private static final Logger logger = Logger.getLogger(PublishSubscriberWorkerMain.class);
+	private static final Logger logger = Logger.getLogger(WorkQueueWorkerMain.class);
+
+	private final static String queueName = "spring-boot";
 
 	@Autowired
-	AnnotationConfigApplicationContext context;
+	private AnnotationConfigApplicationContext context;
 
 	@Bean
 	Queue queue() {
-		return new AnonymousQueue();
+		return new Queue(queueName, false);
 	}
 
 	@Bean
-	FanoutExchange exchange() {
-		return new FanoutExchange(Constants.EXCHANGE_NAME);
+	TopicExchange exchange() {
+		return new TopicExchange("spring-boot-exchange");
 	}
 
 	@Bean
-	Binding binding(final Queue queue, final FanoutExchange exchange) {
-		return BindingBuilder.bind(queue).to(exchange);
+	Binding binding(final Queue queue, final TopicExchange exchange) {
+		return BindingBuilder.bind(queue).to(exchange).with(queueName);
 	}
 
 	@Bean
 	SimpleMessageListenerContainer container(final ConnectionFactory connectionFactory,
-											 final MessageListenerAdapter listenerAdapter, final Queue queue) {
+											 final MessageListenerAdapter listenerAdapter) {
 
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
 		container.setConnectionFactory(connectionFactory);
-		container.setQueueNames(queue.getName());
+		container.setQueueNames(queueName);
 		container.setMessageListener(listenerAdapter);
 		return container;
 	}
@@ -58,7 +62,7 @@ public class PublishSubscriberWorkerMain implements CommandLineRunner {
 	}
 
 	public static void main(final String[] args) {
-		SpringApplication.run(PublishSubscriberWorkerMain.class, args);
+		SpringApplication.run(WorkQueueWorkerMain.class, args);
 	}
 
 	@Override

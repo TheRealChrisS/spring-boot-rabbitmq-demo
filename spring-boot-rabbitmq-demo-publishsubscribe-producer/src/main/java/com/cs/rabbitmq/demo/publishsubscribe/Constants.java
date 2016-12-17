@@ -1,4 +1,4 @@
-package com.cs.rabbitmq;
+package com.cs.rabbitmq.demo.publishsubscribe;
 
 public class Constants {
 
