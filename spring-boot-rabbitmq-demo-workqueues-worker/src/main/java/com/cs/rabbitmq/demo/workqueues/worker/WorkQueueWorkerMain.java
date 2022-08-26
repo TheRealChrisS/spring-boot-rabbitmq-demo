@@ -1,6 +1,6 @@
 package com.cs.rabbitmq.demo.workqueues.worker;
 
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
@@ -16,9 +16,8 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
+@Slf4j
 public class WorkQueueWorkerMain implements CommandLineRunner {
-
-	private static final Logger logger = Logger.getLogger(WorkQueueWorkerMain.class);
 
 	private final static String queueName = "spring-boot";
 
@@ -68,7 +67,7 @@ public class WorkQueueWorkerMain implements CommandLineRunner {
 	@Override
 	public void run(final String... args) throws Exception {
 
-		logger.info("connectionFactory => " + context.getBean(ConnectionFactory.class));
+		log.info("connectionFactory => " + context.getBean(ConnectionFactory.class));
 
 		System.out.println("Press enter to exit ...");
 		System.in.read();

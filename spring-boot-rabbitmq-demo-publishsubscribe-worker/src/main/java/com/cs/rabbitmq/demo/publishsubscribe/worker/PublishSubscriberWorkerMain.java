@@ -1,7 +1,7 @@
 package com.cs.rabbitmq.demo.publishsubscribe.worker;
 
-import com.cs.rabbitmq.demo.publishsubscribe.Constants;
-import org.apache.log4j.Logger;
+import com.cs.rabbitmq.demo.Constants;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
@@ -14,9 +14,8 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
+@Slf4j
 public class PublishSubscriberWorkerMain implements CommandLineRunner {
-
-	private static final Logger logger = Logger.getLogger(PublishSubscriberWorkerMain.class);
 
 	@Autowired
 	private AnnotationConfigApplicationContext context;
@@ -64,7 +63,7 @@ public class PublishSubscriberWorkerMain implements CommandLineRunner {
 	@Override
 	public void run(final String... args) throws Exception {
 
-		logger.info("connectionFactory => " + context.getBean(ConnectionFactory.class));
+		log.info("connectionFactory => " + context.getBean(ConnectionFactory.class));
 
 		System.out.println("Press enter to exit ...");
 		System.in.read();

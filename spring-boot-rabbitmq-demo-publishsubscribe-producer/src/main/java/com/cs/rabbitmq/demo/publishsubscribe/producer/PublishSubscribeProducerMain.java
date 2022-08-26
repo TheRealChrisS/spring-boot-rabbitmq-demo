@@ -1,8 +1,8 @@
 package com.cs.rabbitmq.demo.publishsubscribe.producer;
 
-import com.cs.rabbitmq.demo.publishsubscribe.Constants;
-import com.cs.rabbitmq.demo.publishsubscribe.MyMessage;
-import org.apache.log4j.Logger;
+import com.cs.rabbitmq.demo.Constants;
+import com.cs.rabbitmq.demo.MyMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.FanoutExchange;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -19,9 +19,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @SpringBootApplication
 @EnableScheduling
+@Slf4j
 public class PublishSubscribeProducerMain implements CommandLineRunner {
-
-	private static final Logger logger = Logger.getLogger(PublishSubscribeProducerMain.class);
 
 	private final AtomicInteger count = new AtomicInteger(0);
 
@@ -70,14 +69,14 @@ public class PublishSubscribeProducerMain implements CommandLineRunner {
 	@Scheduled(fixedRate = 1000L)
 	public void sendMessage() {
 		int i = count.incrementAndGet();
-		logger.info("Sending message " + i + " ...");
+		log.info("Sending message " + i + " ...");
 		rabbitTemplate.convertAndSend(Constants.EXCHANGE_NAME, "", new MyMessage("Hello from RabbitMQ! - " + i));
 	}
 
 	@Override
 	public void run(final String... args) throws Exception {
 
-		logger.info("connectionFactory => " + context.getBean(ConnectionFactory.class));
+		log.info("connectionFactory => " + context.getBean(ConnectionFactory.class));
 
 		System.out.println("Press enter to exit ...");
 		System.in.read();

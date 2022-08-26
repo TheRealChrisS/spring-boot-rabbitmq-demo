@@ -1,7 +1,7 @@
 package com.cs.rabbitmq.demo.workqueues.producer;
 
-import com.cs.rabbitmq.demo.workqueues.MyMessage;
-import org.apache.log4j.Logger;
+import com.cs.rabbitmq.demo.MyMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
@@ -20,9 +20,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @SpringBootApplication
 @EnableScheduling
+@Slf4j
 public class WorkQueueProducerMain implements CommandLineRunner {
-
-	private static final Logger logger = Logger.getLogger(WorkQueueProducerMain.class);
 
 	private final static String queueName = "spring-boot";
 
@@ -78,14 +77,14 @@ public class WorkQueueProducerMain implements CommandLineRunner {
 
 	//  @Scheduled(fixedRate = 1000L) // every 5 seconds
 	private void sendMessage() {
-		logger.info("Sending message...");
+		log.info("Sending message...");
 		rabbitTemplate.convertAndSend(queueName, new MyMessage("Hello from RabbitMQ! - " + count.incrementAndGet()));
 	}
 
 	@Override
 	public void run(final String... args) throws Exception {
 
-		logger.info("connectionFactory => " + context.getBean(ConnectionFactory.class));
+		log.info("connectionFactory => " + context.getBean(ConnectionFactory.class));
 
 		for (int i = 0; i < 50; i++) {
 			sendMessage();
